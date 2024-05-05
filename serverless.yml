@@ -1,0 +1,28 @@
+service: apollo-lambda
+provider:
+  name: aws
+  runtime: nodejs18.x
+  httpApi:
+    cors: true
+functions:
+  graphql:
+    # Make sure your file path is correct!
+    # (e.g., if your file is in the root folder use server.graphqlHandler )
+    # The format is: <FILENAME>.<HANDLER>
+    handler: ./src/index.graphqlHandler # highlight-line
+    events:
+      - httpApi:
+          path: /
+          method: POST
+      - httpApi:
+          path: /
+          method: GET
+# Omit the following lines if you aren't using TS!
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dotenv-plugin
+
+custom:
+  dotenv:
+    basePath: ./ # The base directory where the .env file is located
+    path: .env # The specific .env file to load

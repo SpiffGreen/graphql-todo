@@ -1,9 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 import "reflect-metadata";
-import { buildSchema } from "type-graphql";
+import { buildSchemaSync } from "type-graphql";
 import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
+// import { startServerAndCreateLambdahandler } from "@apollo/server-lambda";
+import {
+  startServerAndCreateLambdaHandler,
+  handlers,
+} from "@as-integrations/aws-lambda";
 import { resolvers } from "./resolvers";
 import { connectToMongo } from "./utils/db";
 import authChecker from "./utils/authChecker";
@@ -12,30 +16,23 @@ interface AppContext {
   token: any;
 }
 
-(async function bootstrap() {
-  // Build the applicaiton schema
-  const schema = await buildSchema({
-    resolvers,
-    authChecker,
-  });
+// Connect to database
+connectToMongo();
 
-  // Create apollo server
-  const server = new ApolloServer<AppContext>({
-    schema: schema,
-    introspection: true,
-    csrfPrevention: true,
-  });
+// Build the applicaiton schema
+const schema = buildSchemaSync({
+  resolvers,
+  authChecker,
+});
 
-  // server.start();
-  const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-    context: async ({ req, res }) => {
-      const token = req.headers.authorization;
-      return { token };
-    },
-  });
-  console.log(`🚀  Server ready at ${url}`);
+// Create apollo server
+const server = new ApolloServer({
+  schema: schema,
+  introspection: true,
+  csrfPrevention: true,
+});
 
-  // Connect to database
-  connectToMongo();
-})();
+export const graphqlHandler = startServerAndCreateLambdaHandler(
+  server,
+  handlers.createAPIGatewayProxyEventV2RequestHandler()
+);

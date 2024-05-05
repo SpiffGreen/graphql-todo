@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/server": "^4.10.4",
+    "@as-integrations/aws-lambda": "^3.1.0",
     "@typegoose/typegoose": "^12.4.0",
     "bcrypt": "^5.1.1",
     "class-validator": "^0.14.1",
@@ -36,6 +37,8 @@
     "@types/node": "^20.12.7",
     "nodemon": "^3.1.0",
     "rimraf": "^5.0.5",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-plugin-typescript": "^2.1.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5"
   },
